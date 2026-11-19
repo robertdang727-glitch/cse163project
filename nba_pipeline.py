@@ -37,22 +37,23 @@ def load_clean_nba_draft_data():
     draft_year_bottom_mask = uncleaned_draft_data["year"] >= 2013
 
     cleaned_draft_data = uncleaned_draft_data[
-        years_played_mask &
-        average_minutes_mask &
-        draft_year_top_mask &
-        draft_year_bottom_mask
+        years_played_mask
+        & average_minutes_mask
+        & draft_year_top_mask
+        & draft_year_bottom_mask
     ].copy()
-    cleaned_draft_data["college"] = (
-        cleaned_draft_data["college"].fillna("None")
+    cleaned_draft_data["college"] = cleaned_draft_data["college"].fillna(
+        "None"
     )
-    cleaned_draft_data["player_clean"] = (
-        cleaned_draft_data["player"].apply(normalize_name)
+    cleaned_draft_data["player_clean"] = cleaned_draft_data["player"].apply(
+        normalize_name
     )
 
     players_df = pd.read_csv("/content/Players.csv")
     players_df["player"] = (
-        players_df["firstName"].fillna("") + " " +
-        players_df["lastName"].fillna("")
+        players_df["firstName"].fillna("")
+        + " "
+        + players_df["lastName"].fillna("")
     ).str.strip()
     players_df["player_clean"] = players_df["player"].apply(normalize_name)
 
@@ -60,16 +61,16 @@ def load_clean_nba_draft_data():
     players_pos_df = players_df[["player_clean", "position"]].copy()
     players_pos_df["is_unknown"] = players_pos_df["position"] == "Unknown"
     players_pos_df = players_pos_df.sort_values("is_unknown")
-    players_pos_df = (
-        players_pos_df.drop_duplicates(subset=["player_clean"], keep="first")
+    players_pos_df = players_pos_df.drop_duplicates(
+        subset=["player_clean"], keep="first"
     )
     players_pos_df = players_pos_df.drop(columns=["is_unknown"])
 
     cleaned_draft_data = pd.merge(
         cleaned_draft_data, players_pos_df, on="player_clean", how="left"
     )
-    cleaned_draft_data["position"] = (
-        cleaned_draft_data["position"].fillna("Unknown")
+    cleaned_draft_data["position"] = cleaned_draft_data["position"].fillna(
+        "Unknown"
     )
     cleaned_draft_data = cleaned_draft_data.drop(columns=["player_clean"])
     return cleaned_draft_data
@@ -109,12 +110,12 @@ def generate_visualizations(merged_metrics):
         hue="position",
         palette="Set2",
         alpha=0.8,
-        s=70
+        s=70,
     )
     plt.title(
         "College Box Plus-Minus Proxy vs. NBA Box Plus-Minus (BPM)",
         fontsize=13,
-        fontweight="bold"
+        fontweight="bold",
     )
     plt.xlabel("College BPM (Estimated Efficiency)")
     plt.ylabel("NBA Box Plus-Minus (BPM)")
@@ -130,12 +131,12 @@ def generate_visualizations(merged_metrics):
         hue="position",
         palette="Set2",
         alpha=0.8,
-        s=70
+        s=70,
     )
     plt.title(
         "College Win Shares Proxy vs. NBA Win Shares (WS)",
         fontsize=13,
-        fontweight="bold"
+        fontweight="bold",
     )
     plt.xlabel("College Win Shares (Estimated)")
     plt.ylabel("NBA Cumulative Win Shares (WS)")
@@ -183,7 +184,7 @@ def main():
         ],
         college_raw_metrics[["player", "college_bpm", "college_ws"]],
         on="player",
-        how="inner"
+        how="inner",
     )
 
     generate_visualizations(merged_metrics)
